@@ -1,0 +1,1452 @@
+<!-- Place at beginning of body -->
+    <script>
+        // Define activateTab function first before it's used in HTML
+        function activateTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Show the selected tab content
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.style.display = 'block';
+            }
+            
+            // Update active state in navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            for (let i = 0; i < navItems.length; i++) {
+                const link = navItems[i].querySelector('a');
+                if (link && link.getAttribute('onclick') && link.getAttribute('onclick').includes(`activateTab('${tabId}')`)) {
+                    navItems[i].classList.add('active');
+                }
+            }
+            
+            // If in processing portal and clicking on a subtab
+            if (tabId === 'dscr-guide' || tabId === 'documentation' || 
+                tabId === 'eligibility' || tabId === 'bridge-guide' || 
+                tabId === 'process' || tabId === 'emma-features') {
+                
+                // First show the processing portal
+                document.getElementById('processing-portal').style.display = 'block';
+                
+                // Then hide all subtab contents
+                document.querySelectorAll('#processing-portal .tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Show the selected subtab content
+                document.getElementById(tabId).style.display = 'block';
+                
+                // Update active state in subtabs
+                document.querySelectorAll('#processing-portal .tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                const subtabBtn = document.querySelector(`#processing-portal .tab-btn[data-tab="${tabId}"]`);
+                if (subtabBtn) {
+                    subtabBtn.classList.add('active');
+                }
+                
+                // Special handling for DSCR tab to ensure first buyer tab is active
+                if (tabId === 'dscr-guide') {
+                    const firstBuyerTab = document.querySelector('#dscr-guide .note-buyer-tab');
+                    if (firstBuyerTab) {
+                        // Hide all buyer contents
+                        document.querySelectorAll('#dscr-guide .buyer-content').forEach(content => {
+                            content.style.display = 'none';
+                        });
+                        
+                        // Deactivate all buyer tabs
+                        document.querySelectorAll('#dscr-guide .note-buyer-tab').forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        
+                        // Activate first buyer tab
+                        firstBuyerTab.classList.add('active');
+                        
+                        // Show first buyer content
+                        const buyerId = firstBuyerTab.getAttribute('data-buyer');
+                        const buyerContent = document.getElementById(`buyer-${buyerId}`);
+                        if (buyerContent) {
+                            buyerContent.style.display = 'block';
+                        }
+                    }
+                }
+            }
+            
+            // Close Emma chat window if open
+            const emmaChatWindow = document.getElementById('emmaChatWindow');
+            if (emmaChatWindow) {
+                emmaChatWindow.classList.remove('active');
+            }
+            
+            // Scroll to the tab content
+            const tabElement = document.getElementById(tabId);
+            if (tabElement) {
+                tabElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // Function to show Emma chat
+        function showEmma() {
+            const emmaChatWindow = document.getElementById('emmaChatWindow');
+            if (emmaChatWindow) {
+                emmaChatWindow.classList.add('active');
+            }
+        }
+    </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominion Processing Portal - LOA Portal</title>
+    <style>
+        :root {
+            --primary-color: #00205B;
+            --secondary-color: #77A22F;
+            --light-color: #f5f5f5;
+            --dark-color: #333;
+            --border-radius: 4px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .logo-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            max-width: 500px;
+            height: auto;
+        }
+        
+        /* Navigation */
+        .main-nav {
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            margin: 0;
+            position: relative;
+        }
+
+        .nav-item a {
+            display: block;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item.active a {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-item a:hover {
+            background-color: #e9ecef;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            height: 500px;
+            color: white;
+            overflow: hidden;
+            background-color: #222;
+        }
+        
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+        
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+            z-index: 1;
+        }
+        
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            font-size: 1.1rem;
+        }
+        
+        .hero-button:hover {
+            background-color: #658B27;
+        }
+        
+        /* Page Title */
+        .page-title {
+            background-color: #f0f2f5;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        /* Welcome Message */
+        .welcome-message {
+            text-align: center;
+            margin: 2rem 0;
+            font-size: 2.2rem;
+            color: #4a4a4a;
+        }
+        
+        /* Resource Tabs */
+        .resource-tabs {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .resource-tabs h2 {
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .resource-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .resource-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .resource-content {
+            padding: 1.5rem;
+        }
+        
+        .resource-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .resource-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .resource-button:hover {
+            background-color: #001a47;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1px;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--secondary-color);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 1rem 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Feature List */
+        .feature-list {
+            margin: 1.5rem 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s;
+        }
+        
+        .feature-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .feature-item i {
+            color: var(--secondary-color);
+            font-size: 16px;
+            margin-right: 10px;
+            margin-top: 3px;
+        }
+        
+        .feature-item span {
+            flex: 1;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .cta-button:hover {
+            background-color: #658B27;
+        }
+        
+        /* Note Buyers Tabs Style */
+        .note-buyers-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .note-buyer-tab {
+            background-color: #f1f1f1;
+            border: none;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .note-buyer-tab:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .note-buyer-tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .buyer-content {
+            display: none;
+            padding: 15px 0;
+        }
+        
+        .buyer-content.active {
+            display: block;
+        }
+        
+        /* Emma AI Chat Styles */
+        .emma-chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .emma-chat-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .emma-chat-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .emma-chat-window {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+
+        .emma-chat-window.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .emma-chat-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .emma-chat-title {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .emma-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            margin-right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .emma-chat-close {
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .emma-chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emma-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .emma-message-bot {
+            background-color: #f0f0f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .emma-message-user {
+            background-color: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .emma-chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .emma-chat-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 10px 15px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .emma-chat-send {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .emma-typing {
+            align-self: flex-start;
+            padding: 10px 0;
+            font-size: 0.9em;
+            color: #666;
+            display: none;
+        }
+
+        .emma-typing.active {
+            display: block;
+        }
+
+        .emma-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .emma-suggestion {
+            background-color: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .emma-suggestion:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* Emma AI Features Section */
+        .emma-ai-section {
+            padding: 40px 0;
+        }
+        
+        .emma-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .feature-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* Team Section */
+        .team-section {
+            padding: 50px 0;
+            background-color: #00205B;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .team-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .team-section p {
+            max-width: 800px;
+            margin: 0 auto 30px;
+            line-height: 1.8;
+        }
+        
+        .team-button {
+            display: inline-block;
+            background-color: white;
+            color: var(--primary-color);
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .team-button:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        /* Goal Banner */
+        .goal-banner {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-top: 50px;
+        }
+        
+        /* Feedback Section */
+        .feedback-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 50px 0;
+            align-items: start;
+        }
+        
+        .feedback-form {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feedback-form h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input {
+            margin-right: 10px;
+        }
+        
+        .form-textarea, 
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-input {
+            min-height: auto;
+        }
+        
+        .submit-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-button:hover {
+            background-color: #001a47;
+        }
+        
+        .director-profile {
+            text-align: center;
+        }
+        
+        .director-profile img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .director-profile h3 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 1.5rem;
+        }
+        
+        .director-profile p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        /* About Section */
+        .about-section {
+            padding: 60px 0;
+            background-color: #00205B;
+            color: white;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .about-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .about-section p {
+            max-width: 800px;
+            margin: 0 auto 30px;
+            line-height: 1.8;
+        }
+        
+        .about-section img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: #ddd;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        
+        .collaborators {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .emma-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-list {
+                flex-direction: column;
+            }
+            
+            .nav-item a {
+                text-align: center;
+            }
+            
+            .emma-chat-window {
+                width: 85%;
+                right: 20px;
+            }
+            
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .feedback-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <img src="/api/placeholder/500/120" alt="Dominion Financial Logo" class="logo">
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="#" onclick="activateTab('home'); return false;">HOME</a></li>
+                <li class="nav-item"><a href="#" onclick="activateTab('dscr-guide'); return false;">DSCR GUIDELINES</a></li>
+                <li class="nav-item"><a href="#" onclick="activateTab('retail-procedures'); return false;">RETAIL PROCEDURES</a></li>
+                <li class="nav-item"><a href="#" onclick="activateTab('tpo-procedures'); return false;">TPO PROCEDURES</a></li>
+                <li class="nav-item"><a href="#" onclick="activateTab('borrower-docs'); return false;">BLANK BORROWER DOCS</a></li>
+                <li class="nav-item active"><a href="#" onclick="activateTab('processing-portal'); return false;">PROCESSING PORTAL</a></li>
+                <li class="nav-item"><a href="#" onclick="activateTab('dfs-art'); return false;">DFS ART</a></li>
+                <li class="nav-item"><a href="#" onclick="activateTab('dominion-social'); return false;">DOMINION SOCIAL</a></li>
+                <li class="nav-item"><a href="#" onclick="activateTab('meet-team'); return false;">MEET THE TEAM</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Emma Intro -->
+    <section class="hero-section">
+        <img src="/api/placeholder/1200/500" alt="Office worker" class="hero-image">
+        <div class="hero-content">
+            <h1>Introducing Emma 1.0 Beta</h1>
+            <p>Your AI-powered assistant for loan processing and mortgage intelligence</p>
+            <a href="#" class="hero-button" onclick="showEmma()">Ask Emma</a>
+        </div>
+    </section>
+    
+    <!-- Welcome Message -->
+    <div class="container">
+        <h2 class="welcome-message">Welcome to the LOA Portal</h2>
+    </div>
+    
+    <!-- Resource Quick Tabs -->
+    <section class="resource-tabs">
+        <div class="container">
+            <h2>LOA RESOURCE QUICK TABS</h2>
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <img src="/api/placeholder/400/200" alt="DSCR Guidelines" class="resource-img">
+                    <div class="resource-content">
+                        <h3>DSCR Guidelines</h3>
+                        <p>Access comprehensive guidelines for DSCR loans</p>
+                        <a href="#" class="resource-button">Access Here</a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <img src="/api/placeholder/400/200" alt="Training and Procedures" class="resource-img">
+                    <div class="resource-content">
+                        <h3>Training and Procedures</h3>
+                        <p>Find detailed training materials and procedural guides</p>
+                        <a href="#" class="resource-button">Access Here</a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <img src="/api/placeholder/400/200" alt="About Dominion AI" class="resource-img">
+                    <div class="resource-content">
+                        <h3>About Dominion AI</h3>
+                        <p>Learn about our AI-powered loan intelligence system</p>
+                        <a href="#" class="resource-button">Access Here</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Home Content -->
+    <div id="home" class="tab-content">
+        <div class="hero-section">
+            <img src="/api/placeholder/1200/500" alt="Office worker" class="hero-image">
+            <div class="hero-content">
+                <h1>Introducing Emma 1.0 Beta</h1>
+                <p>Your AI-powered assistant for loan processing and mortgage intelligence</p>
+                <a href="#" class="hero-button" onclick="showEmma()">Ask Emma</a>
+            </div>
+        </div>
+        
+        <!-- Welcome Message -->
+        <div class="container">
+            <h2 class="welcome-message">Welcome to the LOA Portal</h2>
+        </div>
+        
+        <!-- Resource Quick Tabs -->
+        <section class="resource-tabs">
+            <div class="container">
+                <h2>LOA RESOURCE QUICK TABS</h2>
+                <div class="resource-grid">
+                    <div class="resource-card">
+                        <img src="/api/placeholder/400/200" alt="DSCR Guidelines" class="resource-img">
+                        <div class="resource-content">
+                            <h3>DSCR Guidelines</h3>
+                            <p>Access comprehensive guidelines for DSCR loans</p>
+                            <a href="#" class="resource-button" onclick="activateTab('dscr-guide'); return false;">Access Here</a>
+                        </div>
+                    </div>
+                    <div class="resource-card">
+                        <img src="/api/placeholder/400/200" alt="Training and Procedures" class="resource-img">
+                        <div class="resource-content">
+                            <h3>Training and Procedures</h3>
+                            <p>Find detailed training materials and procedural guides</p>
+                            <a href="#" class="resource-button" onclick="activateTab('retail-procedures'); return false;">Access Here</a>
+                        </div>
+                    </div>
+                    <div class="resource-card">
+                        <img src="/api/placeholder/400/200" alt="About Dominion AI" class="resource-img">
+                        <div class="resource-content">
+                            <h3>About Dominion AI</h3>
+                            <p>Learn about our AI-powered loan intelligence system</p>
+                            <a href="#" class="resource-button" onclick="activateTab('emma-features'); return false;">Access Here</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Processing Portal Content -->
+    <div id="processing-portal" class="tab-content active">
+        <div class="container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="eligibility">Loan Programs</button>
+                <button class="tab-btn" data-tab="documentation">Note Buyers</button>
+                <button class="tab-btn" data-tab="dscr-guide">DSCR Guidelines</button>
+                <button class="tab-btn" data-tab="bridge-guide">Bridge Guidelines</button>
+                <button class="tab-btn" data-tab="process">Document Requirements</button>
+                <button class="tab-btn" data-tab="emma-features">Emma AI</button>
+            </div>
+        
+        <!-- Tab Content -->
+        <div id="eligibility" class="tab-content active">
+            <h2>Loan Programs</h2>
+            <p>Our AI-powered loan eligibility assessment system helps you determine qualification factors quickly and accurately.</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span><strong>DSCR Loans:</strong> Financing based on property cash flow with no income verification required</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span><strong>Fix & Flip:</strong> Short-term financing for property acquisition and renovation</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span><strong>Ground-Up Construction:</strong> Financing for new construction projects</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span><strong>Multi Family Bridge:</strong> Transitional financing for multifamily properties</span>
+                </div>
+            </div>
+            <a href="#" class="cta-button">Check Eligibility</a>
+        </div>
+        
+        <div id="documentation" class="tab-content">
+            <h2>All Note Buyers Guide</h2>
+            <p>Access our comprehensive All Note Buyers Guide for information on our loan offerings.</p>
+            
+            <div class="note-buyers-tabs">
+                <button class="note-buyer-tab active" data-buyer="a">Blackstone</button>
+                <button class="note-buyer-tab" data-buyer="b">Bayview</button>
+                <button class="note-buyer-tab" data-buyer="c">Corevest</button>
+                <button class="note-buyer-tab" data-buyer="d">Maxes</button>
+                <button class="note-buyer-tab" data-buyer="e">Onslow</button>
+                <button class="note-buyer-tab" data-buyer="f">Verus</button>
+                <button class="note-buyer-tab" data-buyer="g">Deephaven</button>
+                <button class="note-buyer-tab" data-buyer="h">More</button>
+            </div>
+            
+            <div id="buyer-a" class="buyer-content active">
+                <h3>Blackstone</h3>
+                <p>Blackstone is one of our primary note buyers for DSCR loans. They offer competitive rates and flexible terms.</p>
+                <a href="#" class="cta-button">View Blackstone Guidelines</a>
+            </div>
+            
+            <div id="buyer-b" class="buyer-content">
+                <h3>Bayview</h3>
+                <p>Bayview specializes in residential investment property loans with strong focus on property condition and location.</p>
+                <a href="#" class="cta-button">View Bayview Guidelines</a>
+            </div>
+            
+            <div id="buyer-c" class="buyer-content">
+                <h3>Corevest <span style="color: #666; font-size: 0.9em">(Not Currently Using)</span></h3>
+                <p>Corevest offers term loans and bridge loans for residential real estate investors.</p>
+                <a href="#" class="cta-button">View Corevest Guidelines</a>
+            </div>
+            
+            <div id="buyer-d" class="buyer-content">
+                <h3>Maxes <span style="color: #666; font-size: 0.9em">(Uses Our Guidelines)</span></h3>
+                <p>Maxes follows our internal guidelines for loan acquisitions.</p>
+                <a href="#" class="cta-button">View Maxes Guidelines</a>
+            </div>
+            
+            <div id="buyer-e" class="buyer-content">
+                <h3>Onslow</h3>
+                <p>Onslow specializes in bridge loans and has specific requirements for property types and locations.</p>
+                <a href="#" class="cta-button">View Onslow Guidelines</a>
+            </div>
+            
+            <div id="buyer-f" class="buyer-content">
+                <h3>Verus</h3>
+                <p>Verus offers non-QM loan programs with flexible qualification options.</p>
+                <a href="#" class="cta-button">View Verus Guidelines</a>
+            </div>
+            
+            <div id="buyer-g" class="buyer-content">
+                <h3>Deephaven</h3>
+                <p>Deephaven focuses on non-agency mortgage products with various qualification paths.</p>
+                <a href="#" class="cta-button">View Deephaven Guidelines</a>
+            </div>
+            
+            <div id="buyer-h" class="buyer-content">
+                <h3>More Note Buyers</h3>
+                <p>We work with additional note buyers including:</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>Colchis</strong> - Focused on residential investment properties</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>Churchill</strong> <span style="color: #666; font-size: 0.9em">(Not Using Currently)</span></span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>Eresi</strong> - Specializing in non-owner occupied properties</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>SG Premier</strong> <span style="color: #666; font-size: 0.9em">(Lower Risk/Stronger Borrower)</span></span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>SG Connect</strong> <span style="color: #666; font-size: 0.9em">(Higher Risk Tolerance - GA Loans Ineligible)</span></span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>Toorak</strong> <span style="color: #666; font-size: 0.9em">(3 Month Seasoning All Refi)</span></span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>Acra</strong> - Competitive rates for well-qualified investors</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>NYMT</strong> - New York Mortgage Trust guidelines</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>NQM Lending</strong> <span style="color: #666; font-size: 0.9em">(Broker)</span></span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-building"></i>
+                        <span><strong>American Heritage</strong> <span style="color: #666; font-size: 0.9em">(Broker)</span></span>
+                    </div>
+                </div>
+                <a href="#" class="cta-button">View All Note Buyers</a>
+            </div>
+<div class="content-section">
+    <h2>Note Buyers DSCR Guidelines</h2>
+    <p>Select a note buyer below to view their specific DSCR loan guidelines and requirements.</p>
+    
+    <div class="note-buyers-tabs">
+        <button class="note-buyer-tab active" data-buyer="a">Blackstone</button>
+        <button class="note-buyer-tab" data-buyer="b">Bayview</button>
+        <button class="note-buyer-tab" data-buyer="c">Corevest</button>
+        <button class="note-buyer-tab" data-buyer="d">Maxes</button>
+        <button class="note-buyer-tab" data-buyer="e">Onslow</button>
+        <button class="note-buyer-tab" data-buyer="f">Verus</button>
+        <button class="note-buyer-tab" data-buyer="g">Deephaven</button>
+        <button class="note-buyer-tab" data-buyer="h">Colchis</button>
+        <button class="note-buyer-tab" data-buyer="i">Churchill</button>
+        <button class="note-buyer-tab" data-buyer="j">Eresi</button>
+        <button class="note-buyer-tab" data-buyer="k">SG Premier</button>
+        <button class="note-buyer-tab" data-buyer="l">SG Connect</button>
+        <button class="note-buyer-tab" data-buyer="m">Toorak</button>
+        <button class="note-buyer-tab" data-buyer="n">Acra</button>
+        <button class="note-buyer-tab" data-buyer="o">NYMT</button>
+        <button class="note-buyer-tab" data-buyer="p">NQM Lending</button>
+        <button class="note-buyer-tab" data-buyer="q">American Heritage</button>
+    </div>
+    
+    <div id="buyer-a" class="buyer-content active">
+        <h3>Blackstone DSCR Guidelines</h3>
+        <div class="feature-list">
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span><strong>Program Overview:</strong> DSCR loans for residential investment properties with competitive rates</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span><strong>Minimum DSCR:</strong> 1.0 (higher rates for DSCR below 1.25)</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span><strong>Property Types:</strong> 1-4 unit residential properties, condos, townhomes</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span><strong>Max LTV:</strong> Up to 80% for purchases and rate/term refinances</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span><strong>Experience:</strong> No experience requirement for first-time investors (with restrictions)</span>
+            </div>
+        </div>
+        <a href="#" class="cta-button">View Full Blackstone Guidelines</a>
+    </div>
+    
+    <!-- Copy all other buyer content divs here -->
+</div>
+<script>
+    // Note buyer tabs functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all note buyer tabs
+        const buyerTabs = document.querySelectorAll('.note-buyer-tab');
+        
+        // Add click event listener to each tab
+        buyerTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Get the buyer ID attribute
+                const buyerId = this.getAttribute('data-buyer');
+                
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.note-buyer-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.buyer-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Add active class to corresponding content
+                const buyerContent = document.getElementById(`buyer-${buyerId}`);
+                if (buyerContent) {
+                    buyerContent.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+// Emma Chat Functionality with N8N Integration
+class EmmaChatbot {
+    constructor() {
+        this.initializeDOM();
+        this.addEventListeners();
+        this.conversationHistory = [];
+        this.n8nWebhookUrl = 'https://your-n8n-webhook-url.com/webhook'; // Replace with actual N8N webhook URL
+    }
+
+    initializeDOM() {
+        // Create Emma Chat Container
+        const emmaChatContainer = document.createElement('div');
+        emmaChatContainer.className = 'emma-chat-container';
+        emmaChatContainer.innerHTML = `
+            <div class="emma-chat-button" onclick="showEmma()">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div id="emmaChatWindow" class="emma-chat-window">
+                <div class="emma-chat-header">
+                    <div class="emma-chat-title">
+                        <div class="emma-avatar">E</div>
+                        Emma 1.0 Beta
+                    </div>
+                    <div class="emma-chat-close" onclick="closeEmma()">×</div>
+                </div>
+                <div class="emma-chat-messages" id="emmaChatMessages">
+                    <div class="emma-message emma-message-bot">
+                        Hi! I'm Emma, your AI-powered loan processing assistant. How can I help you today?
+                    </div>
+                    <div class="emma-typing" id="emmaTyping">
+                        Emma is typing...
+                    </div>
+                </div>
+                <div class="emma-suggestions" id="emmaSuggestions">
+                    <div class="emma-suggestion" onclick="sendSuggestion('DSCR Loan Guidelines')">
+                        DSCR Loan Guidelines
+                    </div>
+                    <div class="emma-suggestion" onclick="sendSuggestion('Note Buyers')">
+                        Note Buyers
+                    </div>
+                    <div class="emma-suggestion" onclick="sendSuggestion('Loan Eligibility')">
+                        Loan Eligibility
+                    </div>
+                </div>
+                <div class="emma-chat-input-container">
+                    <input type="text" class="emma-chat-input" id="emmaChatInput" 
+                           placeholder="Type your message..." 
+                           onkeypress="handleChatInput(event)">
+                    <button class="emma-chat-send" onclick="window.emmaChatbot.sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Append to body
+        document.body.appendChild(emmaChatContainer);
+    }
+
+    addEventListeners() {
+        const chatInput = document.getElementById('emmaChatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    this.sendMessage();
+                }
+            });
+        }
+    }
+
+    async sendMessage() {
+        const chatInput = document.getElementById('emmaChatInput');
+        const chatMessages = document.getElementById('emmaChatMessages');
+        const emmaTyping = document.getElementById('emmaTyping');
+        
+        if (!chatInput || !chatInput.value.trim()) return;
+
+        const userMessage = chatInput.value;
+
+        // Add user message to chat
+        const userMessageElement = document.createElement('div');
+        userMessageElement.className = 'emma-message emma-message-user';
+        userMessageElement.textContent = userMessage;
+        chatMessages.appendChild(userMessageElement);
+
+        // Update conversation history
+        this.conversationHistory.push({
+            role: 'user',
+            content: userMessage
+        });
+
+        // Show typing indicator
+        emmaTyping.classList.add('active');
+
+        try {
+            // Send message to N8N webhook
+            const response = await fetch(this.n8nWebhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    conversation_history: this.conversationHistory
+                })
+            });
+
+            const responseData = await response.json();
+
+            // Hide typing indicator
+            emmaTyping.classList.remove('active');
+
+            // Add AI response
+            const aiResponse = document.createElement('div');
+            aiResponse.className = 'emma-message emma-message-bot';
+            aiResponse.textContent = responseData.response || 'I apologize, but I couldn\'t process your request at the moment.';
+            chatMessages.appendChild(aiResponse);
+
+            // Update conversation history
+            this.conversationHistory.push({
+                role: 'assistant',
+                content: aiResponse.textContent
+            });
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Clear input
+            chatInput.value = '';
+        } catch (error) {
+            console.error('Error sending message to N8N:', error);
+            
+            // Hide typing indicator
+            emmaTyping.classList.remove('active');
+
+            // Add error message
+            const errorResponse = document.createElement('div');
+            errorResponse.className = 'emma-message emma-message-bot';
+            errorResponse.textContent = 'Sorry, there was an error processing your request. Please try again.';
+            chatMessages.appendChild(errorResponse);
+        }
+    }
+}
+
+// Global functions to interact with Emma
+function showEmma() {
+    const emmaChatWindow = document.getElementById('emmaChatWindow');
+    if (emmaChatWindow) {
+        emmaChatWindow.classList.add('active');
+    }
+}
+
+function closeEmma() {
+    const emmaChatWindow = document.getElementById('emmaChatWindow');
+    if (emmaChatWindow) {
+        emmaChatWindow.classList.remove('active');
+    }
+}
+
+function sendSuggestion(suggestion) {
+    const chatInput = document.getElementById('emmaChatInput');
+    if (chatInput) {
+        chatInput.value = suggestion;
+        window.emmaChatbot.sendMessage();
+    }
+}
+
+function handleChatInput(event) {
+    if (event.key === 'Enter') {
+        window.emmaChatbot.sendMessage();
+    }
+}
+
+// Initialize Emma when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    window.emmaChatbot = new EmmaChatbot();
+});
+
+
