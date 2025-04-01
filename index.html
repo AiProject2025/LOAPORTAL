@@ -1270,183 +1270,286 @@
             });
         });
     });
-</script>
-// Emma Chat Functionality with N8N Integration
-class EmmaChatbot {
-    constructor() {
-        this.initializeDOM();
-        this.addEventListeners();
-        this.conversationHistory = [];
-        this.n8nWebhookUrl = 'https://your-n8n-webhook-url.com/webhook'; // Replace with actual N8N webhook URL
-    }
-
-    initializeDOM() {
-        // Create Emma Chat Container
-        const emmaChatContainer = document.createElement('div');
-        emmaChatContainer.className = 'emma-chat-container';
-        emmaChatContainer.innerHTML = `
-            <div class="emma-chat-button" onclick="showEmma()">
-                <i class="fas fa-robot"></i>
-            </div>
-            <div id="emmaChatWindow" class="emma-chat-window">
-                <div class="emma-chat-header">
-                    <div class="emma-chat-title">
-                        <div class="emma-avatar">E</div>
-                        Emma 1.0 Beta
-                    </div>
-                    <div class="emma-chat-close" onclick="closeEmma()">×</div>
-                </div>
-                <div class="emma-chat-messages" id="emmaChatMessages">
-                    <div class="emma-message emma-message-bot">
-                        Hi! I'm Emma, your AI-powered loan processing assistant. How can I help you today?
-                    </div>
-                    <div class="emma-typing" id="emmaTyping">
-                        Emma is typing...
-                    </div>
-                </div>
-                <div class="emma-suggestions" id="emmaSuggestions">
-                    <div class="emma-suggestion" onclick="sendSuggestion('DSCR Loan Guidelines')">
-                        DSCR Loan Guidelines
-                    </div>
-                    <div class="emma-suggestion" onclick="sendSuggestion('Note Buyers')">
-                        Note Buyers
-                    </div>
-                    <div class="emma-suggestion" onclick="sendSuggestion('Loan Eligibility')">
-                        Loan Eligibility
-                    </div>
-                </div>
-                <div class="emma-chat-input-container">
-                    <input type="text" class="emma-chat-input" id="emmaChatInput" 
-                           placeholder="Type your message..." 
-                           onkeypress="handleChatInput(event)">
-                    <button class="emma-chat-send" onclick="window.emmaChatbot.sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        // Append to body
-        document.body.appendChild(emmaChatContainer);
-    }
-
-    addEventListeners() {
-        const chatInput = document.getElementById('emmaChatInput');
-        if (chatInput) {
-            chatInput.addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    this.sendMessage();
-                }
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    // Emma Chatbot Class
+    class EmmaChatbot {
+        constructor() {
+            this.initializeDOM();
+            this.addEventListeners();
+            this.conversationHistory = [];
+            this.n8nWebhookUrl = 'https://your-n8n-webhook-url.com/webhook'; // Replace with actual N8N webhook URL
         }
-    }
 
-    async sendMessage() {
-        const chatInput = document.getElementById('emmaChatInput');
-        const chatMessages = document.getElementById('emmaChatMessages');
-        const emmaTyping = document.getElementById('emmaTyping');
-        
-        if (!chatInput || !chatInput.value.trim()) return;
+        initializeDOM() {
+            // Create Emma Chat Container
+            const emmaChatContainer = document.createElement('div');
+            emmaChatContainer.className = 'emma-chat-container';
+            emmaChatContainer.innerHTML = `
+                <div class="emma-chat-button" onclick="window.emmaChatbot.toggleChat()">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div id="emmaChatWindow" class="emma-chat-window">
+                    <div class="emma-chat-header">
+                        <div class="emma-chat-title">
+                            <div class="emma-avatar">E</div>
+                            Emma 1.0 Beta
+                        </div>
+                        <div class="emma-chat-close" onclick="window.emmaChatbot.toggleChat()">×</div>
+                    </div>
+                    <div class="emma-chat-messages" id="emmaChatMessages">
+                        <div class="emma-message emma-message-bot">
+                            Hi! I'm Emma, your AI-powered loan processing assistant. How can I help you today?
+                        </div>
+                        <div class="emma-typing" id="emmaTyping">
+                            Emma is typing...
+                        </div>
+                    </div>
+                    <div class="emma-suggestions" id="emmaSuggestions">
+                        <div class="emma-suggestion" onclick="window.emmaChatbot.sendSuggestion('DSCR Loan Guidelines')">
+                            DSCR Loan Guidelines
+                        </div>
+                        <div class="emma-suggestion" onclick="window.emmaChatbot.sendSuggestion('Note Buyers')">
+                            Note Buyers
+                        </div>
+                        <div class="emma-suggestion" onclick="window.emmaChatbot.sendSuggestion('Loan Eligibility')">
+                            Loan Eligibility
+                        </div>
+                    </div>
+                    <div class="emma-chat-input-container">
+                        <input type="text" class="emma-chat-input" id="emmaChatInput" 
+                               placeholder="Type your message..." 
+                               onkeypress="if(event.key === 'Enter') window.emmaChatbot.sendMessage()">
+                        <button class="emma-chat-send" onclick="window.emmaChatbot.sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Append to body
+            document.body.appendChild(emmaChatContainer);
+        }
 
-        const userMessage = chatInput.value;
+        addEventListeners() {
+            const chatInput = document.getElementById('emmaChatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', (event) => {
+                    if (event.key === 'Enter') {
+                        this.sendMessage();
+                    }
+                });
+            }
+        }
 
-        // Add user message to chat
-        const userMessageElement = document.createElement('div');
-        userMessageElement.className = 'emma-message emma-message-user';
-        userMessageElement.textContent = userMessage;
-        chatMessages.appendChild(userMessageElement);
+        toggleChat() {
+            const emmaChatWindow = document.getElementById('emmaChatWindow');
+            if (emmaChatWindow) {
+                emmaChatWindow.classList.toggle('active');
+            }
+        }
 
-        // Update conversation history
-        this.conversationHistory.push({
-            role: 'user',
-            content: userMessage
-        });
+        async sendMessage() {
+            const chatInput = document.getElementById('emmaChatInput');
+            const chatMessages = document.getElementById('emmaChatMessages');
+            const emmaTyping = document.getElementById('emmaTyping');
+            
+            if (!chatInput || !chatInput.value.trim()) return;
 
-        // Show typing indicator
-        emmaTyping.classList.add('active');
+            const userMessage = chatInput.value;
 
-        try {
-            // Send message to N8N webhook
-            const response = await fetch(this.n8nWebhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: userMessage,
-                    conversation_history: this.conversationHistory
-                })
-            });
-
-            const responseData = await response.json();
-
-            // Hide typing indicator
-            emmaTyping.classList.remove('active');
-
-            // Add AI response
-            const aiResponse = document.createElement('div');
-            aiResponse.className = 'emma-message emma-message-bot';
-            aiResponse.textContent = responseData.response || 'I apologize, but I couldn\'t process your request at the moment.';
-            chatMessages.appendChild(aiResponse);
+            // Add user message to chat
+            const userMessageElement = document.createElement('div');
+            userMessageElement.className = 'emma-message emma-message-user';
+            userMessageElement.textContent = userMessage;
+            chatMessages.appendChild(userMessageElement);
 
             // Update conversation history
             this.conversationHistory.push({
-                role: 'assistant',
-                content: aiResponse.textContent
+                role: 'user',
+                content: userMessage
             });
 
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Show typing indicator
+            emmaTyping.classList.add('active');
 
-            // Clear input
-            chatInput.value = '';
-        } catch (error) {
-            console.error('Error sending message to N8N:', error);
-            
-            // Hide typing indicator
-            emmaTyping.classList.remove('active');
+            try {
+                // Send message to N8N webhook
+                const response = await fetch(this.n8nWebhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                        conversation_history: this.conversationHistory
+                    })
+                });
 
-            // Add error message
-            const errorResponse = document.createElement('div');
-            errorResponse.className = 'emma-message emma-message-bot';
-            errorResponse.textContent = 'Sorry, there was an error processing your request. Please try again.';
-            chatMessages.appendChild(errorResponse);
+                const responseData = await response.json();
+
+                // Hide typing indicator
+                emmaTyping.classList.remove('active');
+
+                // Add AI response
+                const aiResponse = document.createElement('div');
+                aiResponse.className = 'emma-message emma-message-bot';
+                aiResponse.textContent = responseData.response || 'I apologize, but I couldn\'t process your request at the moment.';
+                chatMessages.appendChild(aiResponse);
+
+                // Update conversation history
+                this.conversationHistory.push({
+                    role: 'assistant',
+                    content: aiResponse.textContent
+                });
+
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Clear input
+                chatInput.value = '';
+            } catch (error) {
+                console.error('Error sending message to N8N:', error);
+                
+                // Hide typing indicator
+                emmaTyping.classList.remove('active');
+
+                // Add error message
+                const errorResponse = document.createElement('div');
+                errorResponse.className = 'emma-message emma-message-bot';
+                errorResponse.textContent = 'Sorry, there was an error processing your request. Please try again.';
+                chatMessages.appendChild(errorResponse);
+            }
+        }
+
+        sendSuggestion(suggestion) {
+            const chatInput = document.getElementById('emmaChatInput');
+            if (chatInput) {
+                chatInput.value = suggestion;
+                this.sendMessage();
+            }
         }
     }
-}
 
-// Global functions to interact with Emma
-function showEmma() {
-    const emmaChatWindow = document.getElementById('emmaChatWindow');
-    if (emmaChatWindow) {
-        emmaChatWindow.classList.add('active');
+    // Tab Activation Function
+    function activateTab(tabId) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        
+        // Show the selected tab content
+        const selectedTab = document.getElementById(tabId);
+        if (selectedTab) {
+            selectedTab.style.display = 'block';
+        }
+        
+        // Update active state in navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Find and activate the corresponding nav item
+        const navItems = document.querySelectorAll('.nav-item');
+        for (let i = 0; i < navItems.length; i++) {
+            const link = navItems[i].querySelector('a');
+            if (link && link.getAttribute('onclick') && link.getAttribute('onclick').includes(`activateTab('${tabId}')`)) {
+                navItems[i].classList.add('active');
+            }
+        }
+        
+        // If in processing portal and clicking on a subtab
+        if (['dscr-guide', 'documentation', 'eligibility', 'bridge-guide', 'process', 'emma-features'].includes(tabId)) {
+            // First show the processing portal
+            const processingPortal = document.getElementById('processing-portal');
+            if (processingPortal) {
+                processingPortal.style.display = 'block';
+            }
+            
+            // Then hide all subtab contents
+            document.querySelectorAll('#processing-portal .tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Show the selected subtab content
+            const selectedSubtab = document.getElementById(tabId);
+            if (selectedSubtab) {
+                selectedSubtab.style.display = 'block';
+            }
+            
+            // Update active state in subtabs
+            document.querySelectorAll('#processing-portal .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const subtabBtn = document.querySelector(`#processing-portal .tab-btn[data-tab="${tabId}"]`);
+            if (subtabBtn) {
+                subtabBtn.classList.add('active');
+            }
+            
+            // Special handling for DSCR tab to ensure first buyer tab is active
+            if (tabId === 'dscr-guide') {
+                setupNoteBuyerTabs();
+                const firstBuyerTab = document.querySelector('#dscr-guide .note-buyer-tab');
+                if (firstBuyerTab) {
+                    // Simulate first tab click to activate it
+                    firstBuyerTab.click();
+                }
+            }
+        }
+        
+        // Close Emma chat window if open
+        const emmaChatWindow = document.getElementById('emmaChatWindow');
+        if (emmaChatWindow) {
+            emmaChatWindow.classList.remove('active');
+        }
+        
+        // Scroll to the tab content
+        const tabElement = document.getElementById(tabId);
+        if (tabElement) {
+            tabElement.scrollIntoView({ behavior: 'smooth' });
+        }
     }
-}
 
-function closeEmma() {
-    const emmaChatWindow = document.getElementById('emmaChatWindow');
-    if (emmaChatWindow) {
-        emmaChatWindow.classList.remove('active');
+    // Note Buyer Tabs Functionality
+    function setupNoteBuyerTabs() {
+        const buyerTabs = document.querySelectorAll('.note-buyer-tab');
+        
+        buyerTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const buyerId = this.getAttribute('data-buyer');
+                
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.note-buyer-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.buyer-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Add active class to corresponding content
+                const buyerContent = document.getElementById(`buyer-${buyerId}`);
+                if (buyerContent) {
+                    buyerContent.classList.add('active');
+                }
+            });
+        });
     }
-}
 
-function sendSuggestion(suggestion) {
-    const chatInput = document.getElementById('emmaChatInput');
-    if (chatInput) {
-        chatInput.value = suggestion;
-        window.emmaChatbot.sendMessage();
-    }
-}
+    // Global Functions
+    window.activateTab = activateTab;
+    window.showEmma = function() {
+        if (window.emmaChatbot) {
+            window.emmaChatbot.toggleChat();
+        }
+    };
 
-function handleChatInput(event) {
-    if (event.key === 'Enter') {
-        window.emmaChatbot.sendMessage();
-    }
-}
-
-// Initialize Emma when the page loads
-document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Emma chatbot
     window.emmaChatbot = new EmmaChatbot();
+    
+    // Setup initial note buyer tabs
+    setupNoteBuyerTabs();
+    
+    // Activate initial tab
+    activateTab('processing-portal');
 });
 
 
